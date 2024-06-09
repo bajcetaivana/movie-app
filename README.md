@@ -1,0 +1,3 @@
+# MovieApp
+
+VanillaJS • SCSS • frontend
