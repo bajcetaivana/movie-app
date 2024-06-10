@@ -2,11 +2,12 @@ $background-color: #000b18;
 $text-color: #ffffff;
 $card-shadow-color: rgb(58, 47, 128);
 $card-border-color: 000b18;
-$card-color: #0f69d8;
-
+$card-color: #4700afb8;
 body {
-	background: linear-gradient(30deg, #151515 10%, #1f3953);
+	background-color: #0b0a14;
 	color: $text-color;
+	font-family: "Montserrat", sans-serif;
+	font-weight: 100;
 }
 
 h1 {
@@ -22,27 +23,38 @@ ul {
 	width: 90%;
 	margin: auto;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	grid-gap: 20px;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	grid-gap: 30px;
 }
 
 .movie-card {
+	position: relative;
 	margin: 0;
 	padding: 0;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background-color: $card-color;
+	background: linear-gradient(30deg, #24243c 10%, #262647);
 	border: 1px solid $card-border-color;
 	border-radius: 8px;
 	overflow: hidden;
 	box-shadow: 6px 28px 46px -6px #000;
 	transition: box-shadow 0.3s ease;
 
-	&:hover {
-		transform: scale(1.05);
-		box-shadow: 0 8px 12px rgba(255, 254, 254, 0.5);
-		outline: none;
+	.title-wrapper {
+		display: flex;
+		justify-content: space-between;
+		h2 {
+			font-size: 22px;
+			margin-top: 0;
+			display: -webkit-box;
+			-webkit-line-clamp: 3;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			line-height: 1.5em;
+			height: 4.5em;
+		}
 	}
 
 	img {
@@ -52,7 +64,6 @@ ul {
 		box-shadow: 0 5px 7px rgba(0, 0, 0, 0.3);
 		transition: all 0.3s;
 		border-radius: 5px;
-		border: 3px solid #fff;
 		cursor: pointer;
 		transform: scale(0.9);
 		align-content: space-around;
@@ -64,10 +75,35 @@ ul {
 	}
 
 	.movie-info {
-		padding: 20px;
+		padding: 0 16px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.favorite-heart {
+		width: 24px;
+		height: 24px;
+		fill: white;
+		transition: fill 0.3s ease;
+	}
+
+	.heart-filled {
+		fill: red;
+	}
+
+	button {
+		background: none;
+		border: none;
+		&:active,
+		&:focus,
+		&:focus-visible {
+			border: none;
+			outline: none;
+		}
 	}
 }
 
 .highlighted {
-	background-color: red;
+	box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+	background: linear-gradient(30deg, #000000 10%, #0b0b78);
 }

@@ -31,6 +31,19 @@ const sort = (movies) => {
 	});
 };
 
+const formatDate = (dateString) => {
+	const [year, month, day] = dateString.split("-").map(Number);
+	const newDate = new Date(year, month - 1, day);
+
+	const localeDateFormatter = new Intl.DateTimeFormat("sr-RS", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	});
+
+	return localeDateFormatter.format(newDate);
+};
+
 const renderMovies = (movies) => {
 	const movieListDiv = document.getElementById("movieList");
 	movieListDiv.innerHTML = `<p>${movies.length}</p>`;
@@ -43,20 +56,29 @@ const renderMovies = (movies) => {
 
 	movies.forEach((movie) => {
 		const li = document.createElement("li");
+		let displayDate = "";
+		displayDate = movie.release_date
+			? formatDate(movie.release_date)
+			: "Unknown";
 		li.classList.add("movie-card");
 
 		li.innerHTML = `
 		<img src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}">
 		<div class="movie-info">
-		  <div class="title-wrapper">
-			<h3>${movie.title}</h3>
-		  </div>
-		  <p class="release-date">Release Date: ${movie.release_date}</p>
-		  <div class="favorite-status">
-			<button>Add to Favorites</button>
-		  </div>
-		</div>
-	  `;
+			<div class="title-wrapper">
+				<h2 title="${movie.title}">${movie.title}</h2>
+				<div>
+					<button onclick="toggleFavorite(this)">
+						<svg class="favorite-heart" viewBox="0 0 24 24">
+							<path
+								d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+							/>
+						</svg>
+					</button>
+				</div>
+			</div>
+			<p class="release-date">Release Date: ${displayDate}</p>
+		</div>`;
 
 		li.querySelector("button").addEventListener("click", () => {
 			alert(`${movie.title} added to favorites!`);
@@ -67,6 +89,11 @@ const renderMovies = (movies) => {
 
 	movieListDiv.appendChild(ul);
 };
+
+function toggleFavorite(button) {
+	const heart = button.querySelector(".favorite-heart");
+	heart.classList.toggle("heart-filled");
+}
 
 const getItemsInFirstRow = (container) => {
 	const items = container.children;
