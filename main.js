@@ -68,4 +68,92 @@ const renderMovies = (movies) => {
 	movieListDiv.appendChild(ul);
 };
 
+const getItemsInFirstRow = (container) => {
+	const items = container.children;
+	if (items.length === 0) return 0;
+
+	let itemsInRow = 0;
+	const rowTopOffset = items[0].offsetTop;
+
+	for (let i = 0; i < items.length; i++) {
+		if (items[i].offsetTop === rowTopOffset) {
+			itemsInRow++;
+		} else {
+			break;
+		}
+	}
+
+	return itemsInRow;
+};
+
+const navigation = () => {
+	const movieCards = document.querySelectorAll(".movie-card");
+	const container = document.querySelector(".movies-grid");
+	const itemsInRow = getItemsInFirstRow(container);
+	const rowCount = Math.ceil(movieCards.length / itemsInRow);
+
+	let selectedIndex = 0;
+
+	movieCards[selectedIndex].classList.add("highlighted");
+	movieCards[selectedIndex].querySelector("button").focus();
+
+	const handleKeyDown = (event) => {
+		const buttons = movieCards[selectedIndex].querySelectorAll("button");
+		buttons[0].blur();
+		movieCards[selectedIndex].classList.remove("highlighted");
+
+		const currentRow = Math.floor(selectedIndex / itemsInRow);
+		const currentCol = selectedIndex % itemsInRow;
+
+		switch (event.key) {
+			case "ArrowDown":
+				if (
+					currentRow < rowCount - 1 &&
+					selectedIndex + itemsInRow < movieCards.length
+				) {
+					selectedIndex += itemsInRow;
+				}
+				break;
+			case "ArrowUp":
+				if (currentRow > 0) {
+					selectedIndex -= itemsInRow;
+				}
+				break;
+			case "ArrowLeft":
+				if (selectedIndex > 0) {
+					selectedIndex--;
+				} else {
+					selectedIndex = movieCards.length - 1;
+				}
+				break;
+			case "ArrowRight":
+				if (
+					currentCol < itemsInRow - 1 &&
+					selectedIndex + 1 < movieCards.length
+				) {
+					selectedIndex++;
+				} else if (currentRow < rowCount - 1) {
+					selectedIndex += itemsInRow - currentCol;
+				}
+				break;
+		}
+
+		movieCards[selectedIndex].classList.add("highlighted");
+		const newButtons = movieCards[selectedIndex].querySelectorAll("button");
+		newButtons[0].focus();
+	};
+
+	const handleFocusIn = (event) => {
+		const focusedCard = event.target.closest(".movie-card");
+		if (focusedCard) {
+			movieCards[selectedIndex].classList.remove("highlighted");
+			selectedIndex = Array.from(movieCards).indexOf(focusedCard);
+			movieCards[selectedIndex].classList.add("highlighted");
+		}
+	};
+
+	document.addEventListener("keydown", handleKeyDown);
+	document.addEventListener("focusin", handleFocusIn);
+};
+
 fetchMovies();

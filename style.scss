@@ -22,7 +22,7 @@ ul {
 	width: 90%;
 	margin: auto;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 	grid-gap: 20px;
 }
 
@@ -38,6 +38,12 @@ ul {
 	overflow: hidden;
 	box-shadow: 6px 28px 46px -6px #000;
 	transition: box-shadow 0.3s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 8px 12px rgba(255, 254, 254, 0.5);
+		outline: none;
+	}
 
 	img {
 		object-fit: cover;
@@ -60,4 +66,8 @@ ul {
 	.movie-info {
 		padding: 20px;
 	}
+}
+
+.highlighted {
+	background-color: red;
 }
