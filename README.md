@@ -16,7 +16,9 @@ VanillaJS • SCSS • frontend
 
 ## Run locally
 
+-   Install dependencies: :
+    `npm install`
 -   Start json-server :
     `npx json-server movies.json`
--   Start ng dev server :
+-   Start the development server and open the application in your default browser :
     `npm run start`
