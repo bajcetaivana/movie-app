@@ -61,7 +61,9 @@ const renderMovies = (movies) => {
 		</button>`;
 
 		li.innerHTML = `
-		<img src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}">
+		<div class="img-container">
+			<img src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}">
+		</div>
 		<div class="movie-info">
 			<div class="title-wrapper">
 				<h2 title="${movie.title}">${movie.title}</h2>
