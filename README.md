@@ -22,3 +22,7 @@ VanillaJS • SCSS • frontend
     `npx json-server movies.json`
 -   Start the development server and open the application in your default browser :
     `npm run start`
+
+
+https://github.com/bajcetaivana/movie-app/assets/16049284/cdef20fa-be0d-4f02-9b06-76e2327b58e6
+
