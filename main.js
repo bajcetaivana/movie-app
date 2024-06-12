@@ -69,7 +69,7 @@ const renderMovies = (movies) => {
 					${favoriteButtonHTML}
 				</div>
 			</div>
-			<p class="release-date">Release Date: ${displayDate}</p>
+			<p class="release-date"><span class="release-label">Release:</span> ${displayDate}</p>
 		</div>`;
 
 		ul.appendChild(li);

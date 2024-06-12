@@ -3,6 +3,8 @@ $primary-color: #ffffff;
 $secondary-color: #383958;
 $info-color: #0cabf8;
 $accent-color: #b3ac23;
+$card-gradient: linear-gradient(30deg, #24243c 10%, #262647);
+$highlighted-gradient: linear-gradient(30deg, #000000 10%, #0b0b78);
 
 body {
 	background-color: $background-color;
@@ -11,54 +13,6 @@ body {
 	font-weight: 100;
 	padding: 0 0 88px;
 	margin: 0;
-}
-
-// #toast-container {
-// 	position: fixed;
-// 	top: 20px;
-// 	right: 20px;
-// 	z-index: 9999;
-
-// 	.toast-message {
-// 		font-weight: 400;
-// 		background: $accent-color;
-// 		color: $secondary-color;
-// 		padding: 10px 20px;
-// 		border-radius: 5px;
-// 		transition: opacity 0.3s ease;
-// 		opacity: 0;
-
-// 		&.show {
-// 			opacity: 1;
-// 		}
-// 	}
-// }
-
-#toast-container {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	z-index: 9999;
-	display: flex;
-	flex-direction: column;
-	gap: 10px; /* Space between toasts */
-}
-
-.toast-message {
-	width: 300px;
-	background: $accent-color;
-	color: $secondary-color;
-	font-weight: 400;
-	padding: 10px 20px;
-	border-radius: 5px;
-	transition: opacity 0.3s ease, transform 0.3s ease;
-	opacity: 0;
-	transform: translateY(-10px);
-}
-
-.toast-message.show {
-	opacity: 1;
-	transform: translateY(0);
 }
 
 h1 {
@@ -76,6 +30,39 @@ ul {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 	grid-gap: 30px;
+	@media (min-width: 801px) and (max-width: 1140px) {
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		.release-date {
+			font-size: 0.875em;
+
+			.release-label {
+				font-size: 0.8em;
+			}
+		}
+	}
+
+	@media (min-width: 801px) and (max-width: 960px) {
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	}
+
+	@media (min-width: 600px) and (max-width: 800px) {
+		grid-template-columns: repeat(2, minmax(230px, 1fr));
+	}
+
+	@media (max-width: 600px) {
+		.movie-card {
+			.title-wrapper {
+				h2 {
+					margin: 0;
+					font-size: 16px;
+					font-weight: 500;
+				}
+			}
+			.release-date {
+				margin-top: 0;
+			}
+		}
+	}
 }
 
 .movie-card {
@@ -85,7 +72,7 @@ ul {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background: linear-gradient(30deg, #24243c 10%, #262647);
+	background: $card-gradient;
 	border-radius: 8px;
 	overflow: hidden;
 	box-shadow: 6px 28px 46px -6px #000;
@@ -187,5 +174,46 @@ ul {
 
 .highlighted {
 	box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
-	background: linear-gradient(30deg, #000000 10%, #0b0b78);
+	background: $highlighted-gradient;
+}
+
+.release-date {
+	color: $accent-color;
+	font-weight: 400;
+	.release-label {
+		font-weight: 200;
+		font-size: 0.875em;
+		color: $primary-color;
+	}
+}
+
+#toast-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	.toast-message {
+		width: 300px;
+		background: $accent-color;
+		color: $secondary-color;
+		font-weight: 400;
+		padding: 10px 20px;
+		border-radius: 5px;
+		transition: opacity 0.3s ease, transform 0.3s ease;
+		opacity: 0;
+		transform: translateY(-10px);
+
+		&.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+}
+
+.toast-message.show {
+	opacity: 1;
+	transform: translateY(0);
 }
