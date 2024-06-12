@@ -1,3 +1,6 @@
+const DISPLAY_PER_PAGE = 20;
+let ALL_MOVIES = [];
+
 const fetchMovies = async () => {
 	try {
 		const response = await fetch("http://localhost:3000/movies");
@@ -7,8 +10,7 @@ const fetchMovies = async () => {
 		const data = await response.json();
 		const uniqueData = unique(data);
 		const sortedData = sort(uniqueData);
-		renderMovies(sortedData);
-		navigation();
+		return sortedData;
 	} catch (error) {
 		console.error("Error fetching movies:", error);
 	}
@@ -31,22 +33,8 @@ const sort = (movies) => {
 	});
 };
 
-const formatDate = (dateString) => {
-	const [year, month, day] = dateString.split("-").map(Number);
-	const newDate = new Date(year, month - 1, day);
-
-	const localeDateFormatter = new Intl.DateTimeFormat("sr-RS", {
-		day: "2-digit",
-		month: "2-digit",
-		year: "numeric",
-	});
-
-	return localeDateFormatter.format(newDate);
-};
-
 const renderMovies = (movies) => {
 	const movieListDiv = document.getElementById("movieList");
-	movieListDiv.innerHTML = `<p>${movies.length}</p>`;
 
 	const ul = document.createElement("ul");
 	ul.classList.add("movies-grid");
@@ -68,7 +56,7 @@ const renderMovies = (movies) => {
 			<div class="title-wrapper">
 				<h2 title="${movie.title}">${movie.title}</h2>
 				<div>
-					<button onclick="toggleFavorite(this)">
+					<button class="favorite-button" data-title="${movie.title}" onclick="toggleFavorite(this)">
 						<svg class="favorite-heart" viewBox="0 0 24 24">
 							<path
 								d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
@@ -80,19 +68,125 @@ const renderMovies = (movies) => {
 			<p class="release-date">Release Date: ${displayDate}</p>
 		</div>`;
 
-		li.querySelector("button").addEventListener("click", () => {
-			alert(`${movie.title} added to favorites!`);
-		});
-
 		ul.appendChild(li);
 	});
 
 	movieListDiv.appendChild(ul);
 };
 
+const renderDataByPage = async (currentPage = 0) => {
+	const movieListDiv = document.getElementById("movieList");
+	movieListDiv.innerHTML = "";
+
+	if (!ALL_MOVIES) {
+		ALL_MOVIES = await fetchMovies();
+	}
+
+	const startIndex = currentPage * DISPLAY_PER_PAGE;
+
+	const endIndex = startIndex + DISPLAY_PER_PAGE;
+	const displayedData = ALL_MOVIES.slice(startIndex, endIndex);
+
+	const favoritesInStorage =
+		JSON.parse(localStorage.getItem("favorites")) || [];
+
+	renderMovies(displayedData);
+	renderPagination(ALL_MOVIES.length, DISPLAY_PER_PAGE, currentPage);
+	navigation();
+};
+
+const renderPagination = (totalItems, itemsPerPage, currentPage) => {
+	const totalPages = Math.ceil(totalItems / itemsPerPage);
+	const paginationContainer = document.getElementById("pagination");
+	paginationContainer.innerHTML = "";
+
+	const displayRange = 2;
+	const startPage = Math.max(0, currentPage - displayRange);
+	const endPage = Math.min(totalPages - 1, currentPage + displayRange);
+
+	const renderButton = (pageNumber) => {
+		const button = document.createElement("button");
+		button.textContent = pageNumber + 1;
+		button.classList.add("pagination-button");
+		if (pageNumber === currentPage) {
+			button.classList.add("active");
+		}
+		button.addEventListener("click", () => {
+			renderDataByPage(pageNumber);
+		});
+		paginationContainer.appendChild(button);
+	};
+
+	if (startPage > 0) {
+		renderButton(0);
+		if (startPage > 1) {
+			const ellipsis = document.createElement("span");
+			ellipsis.textContent = "...";
+			paginationContainer.appendChild(ellipsis);
+		}
+	}
+
+	for (let i = startPage; i <= endPage; i++) {
+		renderButton(i);
+	}
+
+	if (endPage < totalPages - 1) {
+		if (endPage < totalPages - 2) {
+			const ellipsis = document.createElement("span");
+			ellipsis.textContent = "...";
+			paginationContainer.appendChild(ellipsis);
+		}
+		renderButton(totalPages - 1);
+	}
+};
+
+const formatDate = (dateString) => {
+	const [year, month, day] = dateString.split("-").map(Number);
+	const newDate = new Date(year, month - 1, day);
+
+	const localeDateFormatter = new Intl.DateTimeFormat("sr-RS", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	});
+
+	return localeDateFormatter.format(newDate);
+};
+
+const createToast = (message, type) => {
+	const toastContainer = document.getElementById("toast-container");
+
+	const toastMessage = document.createElement("div");
+	toastMessage.classList.add("toast-message", type);
+	toastMessage.textContent = message;
+
+	toastContainer.appendChild(toastMessage);
+
+	setTimeout(() => {
+		toastMessage.classList.add("show");
+	}, 100);
+
+	setTimeout(() => {
+		toastMessage.classList.remove("show");
+		setTimeout(() => {
+			toastMessage.remove();
+		}, 300);
+	}, 2000);
+};
+
 function toggleFavorite(button) {
 	const heart = button.querySelector(".favorite-heart");
+	const movieTitle = button.getAttribute("data-title");
+
 	heart.classList.toggle("heart-filled");
+	const message = heart.classList.contains("heart-filled")
+		? `Movie "${movieTitle}" added to favorites!`
+		: `Movie "${movieTitle}" removed from favorites!`;
+	const type = heart.classList.contains("heart-filled")
+		? "toast-add"
+		: "toast-remove";
+
+	createToast(message, type);
 }
 
 const getItemsInFirstRow = (container) => {
@@ -115,14 +209,12 @@ const getItemsInFirstRow = (container) => {
 
 const navigation = () => {
 	const movieCards = document.querySelectorAll(".movie-card");
+
 	const container = document.querySelector(".movies-grid");
 	const itemsInRow = getItemsInFirstRow(container);
 	const rowCount = Math.ceil(movieCards.length / itemsInRow);
 
 	let selectedIndex = 0;
-
-	movieCards[selectedIndex].classList.add("highlighted");
-	movieCards[selectedIndex].querySelector("button").focus();
 
 	const handleKeyDown = (event) => {
 		const buttons = movieCards[selectedIndex].querySelectorAll("button");
@@ -131,7 +223,6 @@ const navigation = () => {
 
 		const currentRow = Math.floor(selectedIndex / itemsInRow);
 		const currentCol = selectedIndex % itemsInRow;
-
 		switch (event.key) {
 			case "ArrowDown":
 				if (
@@ -173,14 +264,25 @@ const navigation = () => {
 	const handleFocusIn = (event) => {
 		const focusedCard = event.target.closest(".movie-card");
 		if (focusedCard) {
-			movieCards[selectedIndex].classList.remove("highlighted");
-			selectedIndex = Array.from(movieCards).indexOf(focusedCard);
-			movieCards[selectedIndex].classList.add("highlighted");
+			const index = Array.from(movieCards).indexOf(focusedCard);
+			if (index !== -1) {
+				movieCards[selectedIndex].classList.remove("highlighted");
+				selectedIndex = index;
+				focusedCard.classList.add("highlighted");
+			}
 		}
 	};
 
 	document.addEventListener("keydown", handleKeyDown);
 	document.addEventListener("focusin", handleFocusIn);
+
+	movieCards[selectedIndex].classList.add("highlighted");
+	movieCards[selectedIndex].querySelector("button").focus();
 };
 
-fetchMovies();
+const fetchAndRenderData = async () => {
+	ALL_MOVIES = await fetchMovies();
+	renderDataByPage();
+};
+
+fetchAndRenderData();
