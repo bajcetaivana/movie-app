@@ -49,6 +49,16 @@ const renderMovies = (movies) => {
 			? formatDate(movie.release_date)
 			: "Unknown";
 		li.classList.add("movie-card");
+		const favoriteButtonHTML = `
+		<button class="favorite-button" data-id="${movie.id}" data-title="${
+			movie.title
+		}" onclick="toggleFavorite(this)">
+			<svg class="favorite-heart${
+				movie.favorite ? " heart-filled" : ""
+			}" viewBox="0 0 24 24">
+				<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+			</svg>
+		</button>`;
 
 		li.innerHTML = `
 		<img src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}">
@@ -56,13 +66,7 @@ const renderMovies = (movies) => {
 			<div class="title-wrapper">
 				<h2 title="${movie.title}">${movie.title}</h2>
 				<div>
-					<button class="favorite-button" data-title="${movie.title}" onclick="toggleFavorite(this)">
-						<svg class="favorite-heart" viewBox="0 0 24 24">
-							<path
-								d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-							/>
-						</svg>
-					</button>
+					${favoriteButtonHTML}
 				</div>
 			</div>
 			<p class="release-date">Release Date: ${displayDate}</p>
@@ -90,7 +94,13 @@ const renderDataByPage = async (currentPage = 0) => {
 	const favoritesInStorage =
 		JSON.parse(localStorage.getItem("favorites")) || [];
 
-	renderMovies(displayedData);
+	displayedDataWithFavourite = displayedData.map((movie) => {
+		const movieId = movie.id.toString();
+		const isFavourited = favoritesInStorage.includes(movieId);
+		return { ...movie, favorite: isFavourited };
+	});
+
+	renderMovies(displayedDataWithFavourite);
 	renderPagination(ALL_MOVIES.length, DISPLAY_PER_PAGE, currentPage);
 	navigation();
 };
@@ -177,8 +187,26 @@ const createToast = (message, type) => {
 function toggleFavorite(button) {
 	const heart = button.querySelector(".favorite-heart");
 	const movieTitle = button.getAttribute("data-title");
+	const movieId = button.getAttribute("data-id");
 
 	heart.classList.toggle("heart-filled");
+
+	const isFavorite = heart.classList.contains("heart-filled");
+
+	const favoritesInStorage =
+		JSON.parse(localStorage.getItem("favorites")) || [];
+
+	if (isFavorite) {
+		favoritesInStorage.push(movieId);
+	} else {
+		const index = favoritesInStorage.indexOf(movieId);
+		if (index !== -1) {
+			favoritesInStorage.splice(index, 1);
+		}
+	}
+
+	localStorage.setItem("favorites", JSON.stringify(favoritesInStorage));
+
 	const message = heart.classList.contains("heart-filled")
 		? `Movie "${movieTitle}" added to favorites!`
 		: `Movie "${movieTitle}" removed from favorites!`;
