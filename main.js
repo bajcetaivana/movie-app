@@ -17,8 +17,11 @@ const fetchMovies = async () => {
 };
 
 const unique = (data) => {
-	const setObj = new Set(data.map(JSON.stringify));
-	return Array.from(setObj).map(JSON.parse);
+	const map = new Map();
+	data.forEach((movie) => {
+		map.set(movie.id, movie);
+	});
+	return Array.from(map.values());
 };
 
 const sort = (movies) => {
@@ -42,13 +45,29 @@ const renderMovies = (movies) => {
 	const baseURL = "https://image.tmdb.org/t/p/";
 	const fileSize = "w500";
 
+	const observer = new IntersectionObserver(
+		(entries, observer) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					const img = entry.target;
+					img.src = img.dataset.src;
+					observer.unobserve(img);
+				}
+			});
+		},
+		{
+			rootMargin: "0px 0px 50px 0px",
+			threshold: 0.1,
+		}
+	);
+
 	movies.forEach((movie) => {
 		const li = document.createElement("li");
-		let displayDate = "";
-		displayDate = movie.release_date
+		let displayDate = movie.release_date
 			? formatDate(movie.release_date)
 			: "Unknown";
 		li.classList.add("movie-card");
+
 		const favoriteButtonHTML = `
 		<button class="favorite-button" data-id="${movie.id}" data-title="${
 			movie.title
@@ -62,7 +81,7 @@ const renderMovies = (movies) => {
 
 		li.innerHTML = `
 		<div class="img-container">
-			<img src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}">
+			<img data-src="${baseURL}${fileSize}${movie.poster_path}" alt="${movie.title}" class="lazy-load">
 		</div>
 		<div class="movie-info">
 			<div class="title-wrapper">
@@ -78,6 +97,8 @@ const renderMovies = (movies) => {
 	});
 
 	movieListDiv.appendChild(ul);
+	const lazyLoadImages = document.querySelectorAll(".lazy-load");
+	lazyLoadImages.forEach((img) => observer.observe(img));
 };
 
 const renderDataByPage = async (currentPage = 0) => {
@@ -311,7 +332,9 @@ const navigation = () => {
 };
 
 const fetchAndRenderData = async () => {
-	ALL_MOVIES = await fetchMovies();
+	if (!ALL_MOVIES?.length) {
+		ALL_MOVIES = await fetchMovies();
+	}
 	renderDataByPage();
 };
 
